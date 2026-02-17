@@ -62,7 +62,21 @@ export function getBillByArtifactId(artifactId: string): BillDetail | null {
     .get(artifactId) as Record<string, unknown> | undefined;
 
   if (!row) return null;
-  return getBillByBillId(row.bill_id as string);
+
+  const summary = mapBillRow(row);
+  const timeline = getTimeline(artifactId);
+  const hearings = getHearings(artifactId);
+  const documents = getDocuments(artifactId, row.bill_id as string);
+
+  return {
+    ...summary,
+    deadline60: (row.deadline_60 as string) || null,
+    deadline90: (row.deadline_90 as string) || null,
+    createdAt: row.created_at as string,
+    timeline,
+    hearings,
+    documents,
+  };
 }
 
 export function getRelatedBills(
@@ -258,16 +272,32 @@ export function searchBills(params: {
       .all(ftsQuery, ...filterArgs) as Record<string, unknown>[];
   }
 
-  const results: SearchResult[] = resultRows.map((r) => ({
-    artifactId: r.artifact_id as string,
-    billId: r.bill_id as string,
-    billLabel: (r.bill_label as string) || (r.bill_id as string),
-    title: (r.title as string) || "",
-    committeeId: (r.committee_id as string) || "",
-    session: (r.session as string) || "",
-    computedState: (r.computed_state as SearchResult["computedState"]) || null,
-    snippet: (r.snippet as string) || null,
-  }));
+  // Group by bill_id: first occurrence becomes the primary result,
+  // subsequent occurrences for the same bill become companions.
+  const grouped = new Map<string, SearchResult>();
+  for (const r of resultRows) {
+    const billId = r.bill_id as string;
+    if (grouped.has(billId)) {
+      grouped.get(billId)!.companions.push({
+        artifactId: r.artifact_id as string,
+        committeeId: (r.committee_id as string) || "",
+        computedState: (r.computed_state as SearchResult["computedState"]) || null,
+      });
+    } else {
+      grouped.set(billId, {
+        artifactId: r.artifact_id as string,
+        billId,
+        billLabel: (r.bill_label as string) || billId,
+        title: (r.title as string) || "",
+        committeeId: (r.committee_id as string) || "",
+        session: (r.session as string) || "",
+        computedState: (r.computed_state as SearchResult["computedState"]) || null,
+        snippet: (r.snippet as string) || null,
+        companions: [],
+      });
+    }
+  }
+  const results = Array.from(grouped.values());
 
   return {
     query: q,
