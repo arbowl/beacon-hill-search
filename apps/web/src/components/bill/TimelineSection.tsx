@@ -27,9 +27,56 @@ const CATEGORY_DOT: Record<string, string> = {
 
 interface TimelineSectionProps {
   actions: TimelineAction[];
+  /** The committee ID this bill artifact is being tracked under */
+  committeeId?: string;
 }
 
-export function TimelineSection({ actions }: TimelineSectionProps) {
+/**
+ * Compute which actions fall within the tenure window of the given committee.
+ * Window starts at the first REFERRED action whose extracted_data.committee_id
+ * matches committeeId, and ends just before the first REFERRED action to a
+ * *different* known committee after that point.
+ */
+function computeWindowIndices(
+  actions: TimelineAction[],
+  committeeId: string | undefined
+): Set<number> {
+  if (!committeeId) return new Set();
+
+  // Find window start: first REFERRED to this committee
+  let startIdx = -1;
+  for (let i = 0; i < actions.length; i++) {
+    const a = actions[i];
+    if (
+      a.actionType === "REFERRED" &&
+      (a.extractedData as Record<string, unknown>)?.committee_id === committeeId
+    ) {
+      startIdx = i;
+      break;
+    }
+  }
+  if (startIdx === -1) return new Set();
+
+  // Find window end: first REFERRED to a *different* committee after start
+  let endIdx = actions.length; // exclusive
+  for (let i = startIdx + 1; i < actions.length; i++) {
+    const a = actions[i];
+    const cid = (a.extractedData as Record<string, unknown>)?.committee_id as string | undefined;
+    if (a.actionType === "REFERRED" && cid && cid !== committeeId) {
+      endIdx = i;
+      break;
+    }
+  }
+
+  const inWindow = new Set<number>();
+  for (let i = startIdx; i < endIdx; i++) {
+    inWindow.add(i);
+  }
+  return inWindow;
+}
+
+export function TimelineSection({ actions, committeeId }: TimelineSectionProps) {
+  const inWindow = computeWindowIndices(actions, committeeId);
   const badge = (
     <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-navy-100 text-navy-600 text-xs font-semibold">
       {actions.length}
@@ -48,6 +95,7 @@ export function TimelineSection({ actions }: TimelineSectionProps) {
         <ol className="relative space-y-0" aria-label="Legislative timeline">
           {actions.map((action, idx) => {
             const isLast = idx === actions.length - 1;
+            const isCurrentWindow = inWindow.has(idx);
             const dotClass = CATEGORY_DOT[action.category] || "bg-navy-300";
             const branchClass =
               BRANCH_COLORS[action.branch] ||
@@ -72,7 +120,10 @@ export function TimelineSection({ actions }: TimelineSectionProps) {
                   <div className="flex items-center gap-2 flex-wrap mb-1">
                     <time
                       dateTime={action.actionDate}
-                      className="text-xs text-navy-400 shrink-0"
+                      className={cn(
+                        "text-xs shrink-0",
+                        isCurrentWindow ? "text-navy-400" : "text-navy-300"
+                      )}
                     >
                       {formatDateShort(action.actionDate)}
                     </time>
@@ -85,7 +136,12 @@ export function TimelineSection({ actions }: TimelineSectionProps) {
                       {action.branch}
                     </span>
                   </div>
-                  <p className="text-sm font-medium text-navy-800 leading-snug">
+                  <p className={cn(
+                    "text-sm leading-snug",
+                    isCurrentWindow
+                      ? "font-semibold text-navy-900"
+                      : "font-medium text-navy-500"
+                  )}>
                     {action.actionLabel}
                   </p>
                   {action.rawText &&
