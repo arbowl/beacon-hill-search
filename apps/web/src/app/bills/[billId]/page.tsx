@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getBillByBillId } from "@/lib/db/queries";
+import { getBillByBillId, getBillByArtifactId } from "@/lib/db/queries";
 import { BillSummaryCard } from "@/components/bill/BillSummaryCard";
 import { TimelineSection } from "@/components/bill/TimelineSection";
 import { HearingsSection } from "@/components/bill/HearingsSection";
@@ -10,6 +10,7 @@ import { DeadlinesSection } from "@/components/bill/DeadlinesSection";
 
 interface BillPageProps {
   params: Promise<{ billId: string }>;
+  searchParams: Promise<{ artifact?: string }>;
 }
 
 export async function generateMetadata({
@@ -24,9 +25,13 @@ export async function generateMetadata({
   };
 }
 
-export default async function BillPage({ params }: BillPageProps) {
+export default async function BillPage({ params, searchParams }: BillPageProps) {
   const { billId } = await params;
-  const bill = getBillByBillId(decodeURIComponent(billId).toUpperCase());
+  const { artifact } = await searchParams;
+
+  const bill = artifact
+    ? getBillByArtifactId(artifact)
+    : getBillByBillId(decodeURIComponent(billId).toUpperCase());
 
   if (!bill) notFound();
 
