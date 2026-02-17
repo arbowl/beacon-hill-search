@@ -99,6 +99,19 @@ export interface SearchResult {
   computedState: ComplianceState | null;
   /** snippet of matching text */
   snippet: string | null;
+  /**
+   * Additional committee referrals for the same bill (same bill_id, different
+   * committee_id / computed_state). Populated when a bill was referred to more
+   * than one committee.
+   */
+  companions: CompanionEntry[];
+}
+
+/** A sibling committee referral for the same bill */
+export interface CompanionEntry {
+  artifactId: string;
+  committeeId: string;
+  computedState: ComplianceState | null;
 }
 
 export interface SearchResponse {
