@@ -17,13 +17,13 @@ export function SiteHeader() {
           <Link
             href="/"
             className="flex items-center gap-2 shrink-0 group"
-            aria-label="Beacon Hill Archive home"
+            aria-label="Beacon Hill Search home"
           >
             <span className="text-gold-400 font-bold text-lg tracking-tight leading-none">
               Beacon Hill
             </span>
             <span className="text-white/70 text-lg font-light leading-none hidden sm:inline">
-              Archive
+              Search
             </span>
           </Link>
 

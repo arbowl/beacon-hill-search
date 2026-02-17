@@ -1,4 +1,4 @@
-# CLAUDE.md — Beacon Hill Archive
+# CLAUDE.md — Beacon Hill Search
 
 This file gives an LLM enough context to work on this project without reading every file.
 
@@ -6,7 +6,7 @@ This file gives an LLM enough context to work on this project without reading ev
 
 ## What this project is
 
-**Beacon Hill Archive** is a public-facing web app that presents Massachusetts legislative bills in a normalized, searchable format. Data originates from the official Legislature website, is collected and normalized by the **Beacon Hill Compliance Tracker** pipeline (`beaconhilltracker.org`), and stored in a DuckDB database. This app is the read-only presentation layer on top of that data.
+**Beacon Hill Search** is a public-facing web app that presents Massachusetts legislative bills in a normalized, searchable format. Data originates from the official Legislature website, is collected and normalized by the **Beacon Hill Compliance Tracker** pipeline (`beaconhilltracker.org`), and stored in a DuckDB database. This app is the read-only presentation layer on top of that data.
 
 ---
 

@@ -5,14 +5,14 @@ import { SiteFooter } from "@/components/layout/SiteFooter";
 
 export const metadata: Metadata = {
   title: {
-    default: "Beacon Hill Archive",
-    template: "%s | Beacon Hill Archive",
+    default: "Beacon Hill Search",
+    template: "%s | Beacon Hill Search",
   },
   description:
     "A clear, searchable record of Massachusetts legislative bills—what the official site should have been.",
   metadataBase: new URL("https://beaconhillarchive.org"),
   openGraph: {
-    siteName: "Beacon Hill Archive",
+    siteName: "Beacon Hill Search",
     locale: "en_US",
   },
 };

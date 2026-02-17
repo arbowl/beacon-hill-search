@@ -1,4 +1,4 @@
-# Beacon Hill Archive
+# Beacon Hill Search
 
 A normalized, searchable viewer for Massachusetts legislative bills.  
 Powered by data from the [Beacon Hill Compliance Tracker](https://beaconhilltracker.org) pipeline.

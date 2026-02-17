@@ -6,7 +6,7 @@ export function SiteFooter() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-sm">
           <div>
-            <p className="font-semibold text-white mb-2">Beacon Hill Archive</p>
+            <p className="font-semibold text-white mb-2">Beacon Hill Search</p>
             <p className="text-white/50 leading-relaxed">
               A normalized record of Massachusetts legislative activity. Data is
               sourced from official legislative publications and processed by the

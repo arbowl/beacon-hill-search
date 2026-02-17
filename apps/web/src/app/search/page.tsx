@@ -24,7 +24,7 @@ export async function generateMetadata({
     title: q ? `"${q}" — Search` : "Browse Bills",
     description: q
       ? `Massachusetts legislative bills matching "${q}"`
-      : "Browse all Massachusetts legislative bills in the Beacon Hill Archive.",
+      : "Browse all Massachusetts legislative bills in the Beacon Hill Search.",
   };
 }
 
