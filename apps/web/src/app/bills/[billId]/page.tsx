@@ -54,7 +54,10 @@ export default async function BillPage({ params }: BillPageProps) {
       <div className="mt-4 space-y-3">
         <DeadlinesSection bill={bill} />
         <HearingsSection hearings={bill.hearings} />
-        <TimelineSection actions={bill.timeline} />
+        <TimelineSection
+          actions={bill.timeline}
+          committeeId={bill.committeeId}
+        />
         <DocumentsSection documents={bill.documents} />
         <SourcesPanel bill={bill} />
       </div>
