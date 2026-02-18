@@ -22,7 +22,7 @@ export function SiteHeader() {
             <span className="text-gold-400 font-bold text-lg tracking-tight leading-none">
               Beacon Hill
             </span>
-            <span className="text-white/70 text-lg font-light leading-none hidden sm:inline">
+            <span className="text-white/70 text-lg font-light leading-none">
               Search
             </span>
           </Link>
