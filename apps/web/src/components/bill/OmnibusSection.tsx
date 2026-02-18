@@ -26,18 +26,18 @@ function ExternalIcon() {
   );
 }
 
-function BillChip({ ref: billRef }: { ref: OmnibusRef }) {
+function BillChip({ bill }: { bill: OmnibusRef }) {
   const inner = (
     <>
-      <span className="font-mono">{billRef.billLabel}</span>
-      {!billRef.internalUrl && <ExternalIcon />}
+      <span className="font-mono">{bill.billLabel}</span>
+      {!bill.internalUrl && <ExternalIcon />}
     </>
   );
 
-  if (billRef.internalUrl) {
+  if (bill.internalUrl) {
     return (
       <Link
-        href={billRef.internalUrl}
+        href={bill.internalUrl}
         className="inline-flex items-center gap-0.5 px-2 py-1 rounded border border-navy-200 bg-navy-50 text-xs text-navy-700 hover:bg-navy-100 hover:border-navy-300 transition-colors"
       >
         {inner}
@@ -47,7 +47,7 @@ function BillChip({ ref: billRef }: { ref: OmnibusRef }) {
 
   return (
     <a
-      href={billRef.externalUrl}
+      href={bill.externalUrl}
       target="_blank"
       rel="noopener noreferrer"
       className="inline-flex items-center gap-0.5 px-2 py-1 rounded border border-navy-200 bg-navy-50 text-xs text-navy-700 hover:bg-navy-100 hover:border-navy-300 transition-colors"
@@ -57,25 +57,25 @@ function BillChip({ ref: billRef }: { ref: OmnibusRef }) {
   );
 }
 
-function ParentLink({ ref: billRef }: { ref: OmnibusRef }) {
-  if (billRef.internalUrl) {
+function ParentLink({ bill }: { bill: OmnibusRef }) {
+  if (bill.internalUrl) {
     return (
       <Link
-        href={billRef.internalUrl}
+        href={bill.internalUrl}
         className="font-mono font-semibold text-navy-700 hover:text-navy-900 underline underline-offset-2"
       >
-        {billRef.billLabel}
+        {bill.billLabel}
       </Link>
     );
   }
   return (
     <a
-      href={billRef.externalUrl}
+      href={bill.externalUrl}
       target="_blank"
       rel="noopener noreferrer"
       className="inline-flex items-center gap-0.5 font-mono font-semibold text-navy-700 hover:text-navy-900 underline underline-offset-2"
     >
-      {billRef.billLabel}
+      {bill.billLabel}
       <ExternalIcon />
     </a>
   );
@@ -109,7 +109,7 @@ export function OmnibusSection({ links }: OmnibusSectionProps) {
           </svg>
           <p>
             This bill was incorporated into a committee redraft:{" "}
-            <ParentLink ref={parent} />
+            <ParentLink bill={parent} />
           </p>
         </div>
       )}
@@ -131,7 +131,7 @@ export function OmnibusSection({ links }: OmnibusSectionProps) {
           </p>
           <div className="flex flex-wrap gap-1.5">
             {constituents.map((c) => (
-              <BillChip key={c.billId} ref={c} />
+              <BillChip key={c.billId} bill={c} />
             ))}
           </div>
         </Accordion>
