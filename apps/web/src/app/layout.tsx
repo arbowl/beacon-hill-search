@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     template: "%s | Beacon Hill Search",
   },
   description:
-    "A clear, searchable record of Massachusetts legislative bills—what the official site should have been.",
+    "A clear, searchable record of Massachusetts legislative bills.",
   metadataBase: new URL("https://beaconhillsearch.org"),
   openGraph: {
     siteName: "Beacon Hill Search",
