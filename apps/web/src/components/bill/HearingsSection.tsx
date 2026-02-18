@@ -1,13 +1,15 @@
 import { Accordion } from "@/components/ui/Accordion";
-import type { HearingRecord } from "@/lib/models/bill";
+import type { ComplianceState, HearingRecord } from "@/lib/models/bill";
 import { formatDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
 interface HearingsSectionProps {
   hearings: HearingRecord[];
+  computedState: ComplianceState | null;
+  computedReason: string | null;
 }
 
-export function HearingsSection({ hearings }: HearingsSectionProps) {
+export function HearingsSection({ hearings, computedState, computedReason }: HearingsSectionProps) {
   const badge = (
     <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-navy-100 text-navy-600 text-xs font-semibold">
       {hearings.length}
@@ -21,7 +23,12 @@ export function HearingsSection({ hearings }: HearingsSectionProps) {
       ) : (
         <div className="space-y-3">
           {hearings.map((h) => (
-            <HearingCard key={h.recordId} hearing={h} />
+            <HearingCard
+              key={h.recordId}
+              hearing={h}
+              computedState={computedState}
+              computedReason={computedReason}
+            />
           ))}
         </div>
       )}
@@ -29,13 +36,25 @@ export function HearingsSection({ hearings }: HearingsSectionProps) {
   );
 }
 
-function HearingCard({ hearing }: { hearing: HearingRecord }) {
+function HearingCard({
+  hearing,
+  computedState,
+  computedReason,
+}: {
+  hearing: HearingRecord;
+  computedState: ComplianceState | null;
+  computedReason: string | null;
+}) {
+  const insufficientNotice =
+    computedState === "Non-Compliant" &&
+    !!computedReason?.toLowerCase().includes("insufficient hearing notice");
+
   const noticeBadge =
-    hearing.adequateNotice === null
+    hearing.noticeGapDays === null
       ? null
-      : hearing.adequateNotice
-      ? { label: "Adequate notice", cls: "badge-compliant" }
-      : { label: "Short notice", cls: "badge-non-compliant" };
+      : insufficientNotice
+      ? { label: "Short notice", cls: "badge-non-compliant" }
+      : { label: "Adequate notice", cls: "badge-compliant" };
 
   return (
     <div className="border border-navy-100 rounded-lg p-3 sm:p-4 bg-navy-50/40">
