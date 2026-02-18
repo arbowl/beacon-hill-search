@@ -333,9 +333,9 @@ def main():
             "artifact_id": artifact_id,
             "bill_id": row[1],
             "bill_label": row[2],
-            "title": row[4] or "",
-            "committee_id": row[3] or "",
-            "session": row[5] or "",
+            "title": row[5] or "",       # index 5 = title
+            "committee_id": row[4] or "", # index 4 = committee_id
+            "session": row[3] or "",      # index 3 = session
             "computed_state": row[8] or "",
             "action_texts": [],
             "doc_texts": [],
