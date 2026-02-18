@@ -311,20 +311,20 @@ export function searchBills(params: {
 
 function buildFtsQuery(q: string): string {
   if (!q || !q.trim()) return "";
-  // Escape FTS special chars, then wrap terms with prefix matching
+  // Strip FTS5 special characters, then build simple prefix terms.
+  // Do NOT wrap in quotes — "word"* does not reliably support prefix
+  // matching in all SQLite versions. word* is the correct form.
   const sanitized = q
     .trim()
-    .replace(/['"*^()]/g, " ")
+    .replace(/[^\w\s]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
   if (!sanitized) return "";
-  // Each word becomes a prefix match term
-  const terms = sanitized
+  return sanitized
     .split(" ")
     .filter(Boolean)
-    .map((t) => `"${t}"*`)
+    .map((t) => `${t}*`)
     .join(" ");
-  return terms;
 }
 
 // ─── Committees ──────────────────────────────────────────────────────────────
