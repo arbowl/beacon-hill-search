@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Learn how the Beacon Hill Search works, where the data comes from, and how to interpret what you see.",
+    "Learn how the Beacon Hill Archive works, where the data comes from, and how to interpret what you see.",
 };
 
 export default function AboutPage() {
@@ -17,7 +17,7 @@ export default function AboutPage() {
       </nav>
 
       <h1 className="text-2xl sm:text-3xl font-bold text-navy-900 mb-2">
-        About Beacon Hill Search
+        About Beacon Hill Archive
       </h1>
       <p className="text-navy-500 text-base mb-10 leading-relaxed">
         A plain-language guide to what this site is, where the data comes from,
@@ -27,7 +27,7 @@ export default function AboutPage() {
       <div className="space-y-10 text-navy-700 text-sm sm:text-base leading-relaxed">
         <Section heading="What is this?">
           <p>
-            Beacon Hill Search is a public reference tool that presents
+            Beacon Hill Archive is a public reference tool that presents
             Massachusetts legislative bills in a clear, consistent format.
             The official Legislature website publishes this information, but
             it&apos;s scattered across many pages, inconsistently labeled, and
@@ -211,7 +211,7 @@ export default function AboutPage() {
             and government accountability.
           </p>
           <p className="mt-3">
-            Beacon Hill Search is an independent project. It is not affiliated
+            Beacon Hill Archive is an independent project. It is not affiliated
             with any political party or organization. The only goal is to make
             Massachusetts legislative information easier to find and understand.
           </p>

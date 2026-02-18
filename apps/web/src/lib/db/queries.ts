@@ -8,6 +8,8 @@ import {
   BillDocument,
   BillSummary,
   HearingRecord,
+  OmnibusLinks,
+  OmnibusRef,
   SearchResponse,
   SearchResult,
   TimelineAction,
@@ -38,6 +40,12 @@ export function getBillByBillId(billId: string): BillDetail | null {
   const hearings = getHearings(row.artifact_id as string);
   const documents = getDocuments(row.artifact_id as string, billId);
 
+  const omnibusLinks = getOmnibusLinks(
+    row.artifact_id as string,
+    row.bill_id as string,
+    row.session as string
+  );
+
   return {
     ...summary,
     deadline60: (row.deadline_60 as string) || null,
@@ -46,6 +54,7 @@ export function getBillByBillId(billId: string): BillDetail | null {
     timeline,
     hearings,
     documents,
+    omnibusLinks,
   };
 }
 
@@ -68,6 +77,12 @@ export function getBillByArtifactId(artifactId: string): BillDetail | null {
   const hearings = getHearings(artifactId);
   const documents = getDocuments(artifactId, row.bill_id as string);
 
+  const omnibusLinks = getOmnibusLinks(
+    artifactId,
+    row.bill_id as string,
+    row.session as string
+  );
+
   return {
     ...summary,
     deadline60: (row.deadline_60 as string) || null,
@@ -76,6 +91,7 @@ export function getBillByArtifactId(artifactId: string): BillDetail | null {
     timeline,
     hearings,
     documents,
+    omnibusLinks,
   };
 }
 
@@ -96,6 +112,80 @@ export function getRelatedBills(
     )
     .all(committeeId, excludeArtifactId, limit) as Record<string, unknown>[];
   return rows.map(mapBillRow);
+}
+
+// ─── Omnibus links ────────────────────────────────────────────────────────────
+
+function buildRef(
+  relatedId: string,
+  billLabel: string | null,
+  billIdInDb: string | null,
+  session: string
+): OmnibusRef {
+  const label = billLabel || normaliseLabel(relatedId);
+  return {
+    billId: relatedId,
+    billLabel: label,
+    internalUrl: billIdInDb ? `/bills/${billIdInDb}` : null,
+    externalUrl: `https://malegislature.gov/Bills/${session}/${relatedId}`,
+  };
+}
+
+function normaliseLabel(billId: string): string {
+  const m = billId.match(/^([A-Za-z]+)(\d+)$/);
+  return m ? `${m[1]}.${m[2]}` : billId;
+}
+
+export function getOmnibusLinks(
+  artifactId: string,
+  billId: string,
+  session: string
+): OmnibusLinks | null {
+  const db = getDb();
+
+  // Parent: this bill was accompanied into a new draft
+  const parentRow = db
+    .prepare(
+      `SELECT json_extract(ta.extracted_data, '$.related_bill') AS related_id,
+              b2.bill_id AS db_bill_id,
+              b2.bill_label
+       FROM timeline_actions ta
+       LEFT JOIN bills b2
+         ON b2.bill_id = json_extract(ta.extracted_data, '$.related_bill')
+         AND b2.session = ?
+       WHERE ta.artifact_id = ?
+         AND ta.action_type = 'ACCOMPANIED'
+         AND ta.raw_text LIKE '%new draft%'
+       LIMIT 1`
+    )
+    .get(session, artifactId) as
+    | { related_id: string; db_bill_id: string | null; bill_label: string | null }
+    | undefined;
+
+  const parent = parentRow?.related_id
+    ? buildRef(parentRow.related_id, parentRow.bill_label, parentRow.db_bill_id, session)
+    : null;
+
+  // Constituents: this bill is an omnibus — find all bills accompanied into it
+  const constituentRows = db
+    .prepare(
+      `SELECT b.bill_id, b.bill_label
+       FROM timeline_actions ta
+       JOIN bills b ON ta.artifact_id = b.artifact_id
+       WHERE ta.action_type = 'ACCOMPANIED'
+         AND ta.raw_text LIKE '%new draft%'
+         AND json_extract(ta.extracted_data, '$.related_bill') = ?
+         AND b.session = ?
+       ORDER BY b.bill_id`
+    )
+    .all(billId, session) as { bill_id: string; bill_label: string }[];
+
+  const constituents = constituentRows.map((r) =>
+    buildRef(r.bill_id, r.bill_label, r.bill_id, session)
+  );
+
+  if (!parent && constituents.length === 0) return null;
+  return { parent, constituents };
 }
 
 // ─── Timeline ────────────────────────────────────────────────────────────────

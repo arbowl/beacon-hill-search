@@ -31,11 +31,34 @@ interface TimelineSectionProps {
   committeeId?: string;
 }
 
+// Categories that are inherently committee actions (not chamber floor actions)
+const COMMITTEE_CATEGORIES = new Set([
+  "referral-committee",
+  "hearing-scheduled",
+  "hearing-rescheduled",
+  "hearing-updated",
+  "deadline-extension",
+  "committee-passage",
+  "committee-passage-unfavorable",
+]);
+
+// Categories that are chamber/floor actions — never highlight these as
+// belonging to a specific committee window
+const CHAMBER_CATEGORIES = new Set([
+  "passage",
+  "reading-1",
+  "reading-2",
+  "reading-3",
+  "executive-signature",
+  "amendment-passage",
+]);
+
 /**
- * Compute which actions fall within the tenure window of the given committee.
- * Window starts at the first REFERRED action whose extracted_data.committee_id
- * matches committeeId, and ends just before the first REFERRED action to a
- * *different* known committee after that point.
+ * Returns the set of action indices that belong to the current committee's
+ * tenure window. An action qualifies if:
+ *   (a) its extracted_data.committee_id explicitly matches committeeId, OR
+ *   (b) it falls in the committee's date range AND is a committee-category
+ *       action (not a chamber floor action).
  */
 function computeWindowIndices(
   actions: TimelineAction[],
@@ -43,34 +66,43 @@ function computeWindowIndices(
 ): Set<number> {
   if (!committeeId) return new Set();
 
-  // Find window start: first REFERRED to this committee
-  let startIdx = -1;
-  for (let i = 0; i < actions.length; i++) {
-    const a = actions[i];
-    if (
-      a.actionType === "REFERRED" &&
-      (a.extractedData as Record<string, unknown>)?.committee_id === committeeId
-    ) {
-      startIdx = i;
+  // Find window start: first REFERRED whose extracted_data.committee_id matches
+  let startDate: string | null = null;
+  for (const a of actions) {
+    const cid = (a.extractedData as Record<string, unknown>)?.committee_id as string | undefined;
+    if (a.actionType === "REFERRED" && cid === committeeId) {
+      startDate = a.actionDate;
       break;
     }
   }
-  if (startIdx === -1) return new Set();
+  if (!startDate) return new Set();
 
-  // Find window end: first REFERRED to a *different* committee after start
-  let endIdx = actions.length; // exclusive
-  for (let i = startIdx + 1; i < actions.length; i++) {
-    const a = actions[i];
+  // Find window end date: first REFERRED to a *different* known committee after start
+  let endDate: string | null = null;
+  for (const a of actions) {
+    if (a.actionDate <= startDate) continue;
     const cid = (a.extractedData as Record<string, unknown>)?.committee_id as string | undefined;
     if (a.actionType === "REFERRED" && cid && cid !== committeeId) {
-      endIdx = i;
+      endDate = a.actionDate;
       break;
     }
   }
 
   const inWindow = new Set<number>();
-  for (let i = startIdx; i < endIdx; i++) {
-    inWindow.add(i);
+  for (let i = 0; i < actions.length; i++) {
+    const a = actions[i];
+    if (CHAMBER_CATEGORIES.has(a.category)) continue;
+
+    const cid = (a.extractedData as Record<string, unknown>)?.committee_id as string | undefined;
+    const explicitMatch = cid === committeeId;
+    const inDateRange =
+      a.actionDate >= startDate &&
+      (endDate === null || a.actionDate < endDate) &&
+      COMMITTEE_CATEGORIES.has(a.category);
+
+    if (explicitMatch || inDateRange) {
+      inWindow.add(i);
+    }
   }
   return inWindow;
 }

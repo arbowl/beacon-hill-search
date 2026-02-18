@@ -46,6 +46,9 @@ export default function HomePage() {
       {/* ── Hero ─────────────────────────────────────────────────────── */}
       <section className="bg-navy-900 text-white">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-14 text-center">
+          <div className="inline-flex items-center gap-2 bg-gold-500/15 text-gold-300 text-xs font-medium px-3 py-1 rounded-full mb-5 border border-gold-500/25">
+            Massachusetts · Session 194
+          </div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight tracking-tight mb-4">
             The Massachusetts Legislature,{" "}
             <span className="text-gold-400">made readable.</span>

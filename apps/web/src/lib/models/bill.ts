@@ -15,6 +15,18 @@ export interface BillSummary {
   reportedDate: string | null;
 }
 
+export interface OmnibusRef {
+  billId: string;
+  billLabel: string;
+  internalUrl: string | null;
+  externalUrl: string;
+}
+
+export interface OmnibusLinks {
+  parent: OmnibusRef | null;
+  constituents: OmnibusRef[];
+}
+
 export interface BillDetail extends BillSummary {
   deadline60: string | null;
   deadline90: string | null;
@@ -22,6 +34,7 @@ export interface BillDetail extends BillSummary {
   timeline: TimelineAction[];
   hearings: HearingRecord[];
   documents: BillDocument[];
+  omnibusLinks: OmnibusLinks | null;
 }
 
 export type ComplianceState = "Compliant" | "Non-Compliant" | "Pending" | "Exempt";

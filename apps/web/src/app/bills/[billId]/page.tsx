@@ -7,6 +7,7 @@ import { TimelineSection } from "@/components/bill/TimelineSection";
 import { HearingsSection } from "@/components/bill/HearingsSection";
 import { DocumentsSection } from "@/components/bill/DocumentsSection";
 import { DeadlinesSection } from "@/components/bill/DeadlinesSection";
+import { OmnibusSection } from "@/components/bill/OmnibusSection";
 
 interface BillPageProps {
   params: Promise<{ billId: string }>;
@@ -57,6 +58,7 @@ export default async function BillPage({ params, searchParams }: BillPageProps) 
 
       {/* Accordion sections */}
       <div className="mt-4 space-y-3">
+        <OmnibusSection links={bill.omnibusLinks} />
         <DeadlinesSection bill={bill} />
         <HearingsSection hearings={bill.hearings} />
         <TimelineSection
