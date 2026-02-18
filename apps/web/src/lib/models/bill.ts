@@ -76,8 +76,6 @@ export interface HearingRecord {
   announcementDate: string | null;
   scheduledHearingDate: string | null;
   noticeGapDays: number | null;
-  /** derived: was hearing announced with adequate notice? */
-  adequateNotice: boolean | null;
 }
 
 // ─── Documents ───────────────────────────────────────────────────────────────
@@ -195,7 +193,6 @@ export function mapHearingRow(row: Record<string, unknown>): HearingRecord {
     announcementDate: (row.announcement_date as string) || null,
     scheduledHearingDate: (row.scheduled_hearing_date as string) || null,
     noticeGapDays: noticeGap ?? null,
-    adequateNotice: noticeGap === null ? null : noticeGap >= 5,
   };
 }
 
