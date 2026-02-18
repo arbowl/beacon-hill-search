@@ -60,7 +60,11 @@ export default async function BillPage({ params, searchParams }: BillPageProps) 
       <div className="mt-4 space-y-3">
         <OmnibusSection links={bill.omnibusLinks} />
         <DeadlinesSection bill={bill} />
-        <HearingsSection hearings={bill.hearings} />
+        <HearingsSection
+          hearings={bill.hearings}
+          computedState={bill.computedState}
+          computedReason={bill.computedReason}
+        />
         <TimelineSection
           actions={bill.timeline}
           committeeId={bill.committeeId}
